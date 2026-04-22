@@ -1,4 +1,5 @@
 "use client";
+import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
@@ -7,7 +8,9 @@ import { cn } from "@/lib/utils";
 
 export function TopBar({ meta }: { meta?: { left?: string; center?: string; right?: string } }) {
   const pathname = usePathname();
-  const { theme, setTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => setMounted(true), []);
 
   const navItems = [
     { href: "/projects", label: "Projects" },
@@ -37,11 +40,14 @@ export function TopBar({ meta }: { meta?: { left?: string; center?: string; righ
         <div className="ml-auto flex items-center gap-4">
           <span className="meta">location: {pathname}</span>
           <button
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
             className="flex h-7 w-7 items-center justify-center border border-[var(--border)] hover:bg-[var(--border)]/40"
             aria-label="Toggle theme"
+            suppressHydrationWarning
           >
-            {theme === "dark" ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
+            <span suppressHydrationWarning>
+              {mounted ? (resolvedTheme === "dark" ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />) : <Moon className="h-3.5 w-3.5 opacity-0" />}
+            </span>
           </button>
           <form action="/api/auth/logout" method="post">
             <button
